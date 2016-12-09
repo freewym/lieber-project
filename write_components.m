@@ -1,4 +1,4 @@
-function write_components(type_fmri, type_mask, num_comps, U, V, best_lambda_U, best_lambda_V, best_tau_U, best_tau_V, ROI)
+function write_components(type_fmri, type_mask, num_comps, U, V, best_lambda_U, best_lambda_V, ROI)
 % load header of each fmri file for writing out
 load('csv_data.mat');
 if strcmpi(type_fmri,'nback')
@@ -27,7 +27,7 @@ if strcmpi(type_mask,'ROIs_all') || strcmpi(type_mask,'ROIs_cerebrum') || strcmp
     nROIs = max(max(max(ROI)));
     if strcmpi(type_mask,'ROIs_all') || strcmpi(type_mask,'ROIs_cerebrum')
         %read ROI mapping from AAL files 
-        fname='/home/yiming.wang/fmri_snp/aal.txt';
+        fname='aal.txt';
         fid=fopen(fname);
         aal=textscan(fid,'%d %s %d');
         fclose(fid);
@@ -42,7 +42,7 @@ if strcmpi(type_mask,'ROIs_all') || strcmpi(type_mask,'ROIs_cerebrum') || strcmp
         vis_CCA_brain=zeros(size(ROI));
     
         if strcmpi(type_mask,'ROIs_all') || strcmpi(type_mask,'ROIs_cerebrum')
-            fname=['/home/yiming.wang/fmri_snp/results_folder_',type_fmri,'_raw9/','vis_cca_brain',num2str(i,'%02d'),num2str(best_lambda_U(i),'%1.2f'),'_',num2str(best_lambda_V(i),'%1.2f'),'_aal.txt'];
+            fname=['results_folder_',type_fmri,'_raw9/','vis_cca_brain',num2str(i,'%02d'),num2str(best_lambda_U(i),'%1.2f'),'_',num2str(best_lambda_V(i),'%1.2f'),'_aal.txt'];
             fid=fopen(fname,'w');
             for j=1:nROIs
                 if U(j,i) ~= 0
@@ -67,7 +67,7 @@ if strcmpi(type_mask,'ROIs_all') || strcmpi(type_mask,'ROIs_cerebrum') || strcmp
             nROIs_mask=max(max(max(ROI_mask)));
 
             %read ROI mapping from AAL files 
-            fname='/home/yiming.wang/fmri_snp/aal.txt';
+            fname='aal.txt';
             fid=fopen(fname);
             aal=textscan(fid,'%d %s %d');
             fclose(fid);
@@ -76,7 +76,7 @@ if strcmpi(type_mask,'ROIs_all') || strcmpi(type_mask,'ROIs_cerebrum') || strcmp
                 aal_mapping{j}=aal{2}{j};
             end
 
-            fname=['/home/yiming.wang/fmri_snp/results_folder_',type_fmri,'_raw9/','vis_cca_brain',num2str(i,'%02d'),num2str(best_lambda_U(i),'%1.4f'),'_',num2str(best_lambda_V(i),'%1.4f'),'_aal.txt'];
+            fname=['results_folder_',type_fmri,'_raw9/','vis_cca_brain',num2str(i,'%02d'),num2str(best_lambda_U(i),'%1.4f'),'_',num2str(best_lambda_V(i),'%1.4f'),'_aal.txt'];
             fid=fopen(fname,'w');
             weights_ROI=zeros(nROIs_mask,1);
             for j=1:nROIs_mask
@@ -87,7 +87,7 @@ if strcmpi(type_mask,'ROIs_all') || strcmpi(type_mask,'ROIs_cerebrum') || strcmp
                 fprintf(fid,'%.10f %d %s\n',weights_ROI(j),j,aal_mapping{j});
             end
             fclose(fid);
-            fname=['/home/yiming.wang/fmri_snp/results_folder_',type_fmri,'_raw9/','vis_cca_brain',num2str(i,'%02d'),num2str(best_lambda_U(i),'%1.4f'),'_',num2str(best_lambda_V(i),'%1.4f'),'_aal_pos.txt'];
+            fname=['results_folder_',type_fmri,'_raw9/','vis_cca_brain',num2str(i,'%02d'),num2str(best_lambda_U(i),'%1.4f'),'_',num2str(best_lambda_V(i),'%1.4f'),'_aal_pos.txt'];
             fid=fopen(fname,'w');
             weights_ROI=zeros(nROIs_mask,1);
             for j=1:nROIs_mask
@@ -95,7 +95,7 @@ if strcmpi(type_mask,'ROIs_all') || strcmpi(type_mask,'ROIs_cerebrum') || strcmp
                 fprintf(fid,'%.10f %d %s\n',weights_ROI(j),j,aal_mapping{j});
             end
             fclose(fid);
-            fname=['/home/yiming.wang/fmri_snp/results_folder_',type_fmri,'_raw9/','vis_cca_brain',num2str(i,'%02d'),num2str(best_lambda_U(i),'%1.4f'),'_',num2str(best_lambda_V(i),'%1.4f'),'_aal_neg.txt'];
+            fname=['results_folder_',type_fmri,'_raw9/','vis_cca_brain',num2str(i,'%02d'),num2str(best_lambda_U(i),'%1.4f'),'_',num2str(best_lambda_V(i),'%1.4f'),'_aal_neg.txt'];
             fid=fopen(fname,'w');
             weights_ROI=zeros(nROIs_mask,1);
             for j=1:nROIs_mask
@@ -103,7 +103,7 @@ if strcmpi(type_mask,'ROIs_all') || strcmpi(type_mask,'ROIs_cerebrum') || strcmp
                 fprintf(fid,'%.10f %d %s\n',weights_ROI(j),j,aal_mapping{j});
             end
             fclose(fid);
-            fname=['/home/yiming.wang/fmri_snp/results_folder_',type_fmri,'_raw9/','vis_cca_brain','_ROI_aal.txt'];
+            fname=['results_folder_',type_fmri,'_raw9/','vis_cca_brain','_ROI_aal.txt'];
             fid=fopen(fname,'w');
             weights_ROI=zeros(nROIs_mask,1);
             for j=1:nROIs_mask
@@ -114,12 +114,12 @@ if strcmpi(type_mask,'ROIs_all') || strcmpi(type_mask,'ROIs_cerebrum') || strcmp
         end
 
         % output fmri weights on brain volumn for each component
-        fname=['/home/yiming.wang/fmri_snp/results_folder_',type_fmri,'_raw9/','vis_cca_brain',num2str(i,'%02d'),num2str(best_lambda_U(i),'%1.4f'),'_',num2str(best_lambda_V(i),'%1.4f'),'.nii'];
+        fname=['results_folder_',type_fmri,'_raw9/','vis_cca_brain',num2str(i,'%02d'),num2str(best_lambda_U(i),'%1.4f'),'_',num2str(best_lambda_V(i),'%1.4f'),'.nii'];
         VI.fname=fname;VI.private.dat.fname=VI.fname;
         spm_write_vol(VI,vis_CCA_brain.*2000);
 
         % output snp weights for each component
-        fname=['/home/yiming.wang/fmri_snp/results_folder_',type_fmri,'_raw9/','snp_vector',num2str(i,'%02d'),sprintf('_%1.4f_%1.4f.txt',best_lambda_U(i),best_lambda_V(i))];
+        fname=['results_folder_',type_fmri,'_raw9/','snp_vector',num2str(i,'%02d'),sprintf('_%1.4f_%1.4f.txt',best_lambda_U(i),best_lambda_V(i))];
         fid=fopen(fname,'w');
         for j=1:size(V,1)
             fprintf(fid,'%f\n',V(j,i));

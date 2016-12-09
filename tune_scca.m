@@ -1,9 +1,7 @@
-function [best_lambda_u, best_lambda_v,best_tau_u, best_tau_v] = tune_scca(tuning_params, uu, vv, tau_uu, tau_vv, alg, data_fmri, data_snp, labels, num_SZ)
+function [best_lambda_u, best_lambda_v] = tune_scca(tuning_params, uu, vv, alg, data_fmri, data_snp, labels, num_SZ)
 if strcmpi(tuning_params,'manual')
     best_lambda_u=uu;
     best_lambda_v=vv;
-    best_tau_u=tau_uu;
-    best_tau_v=tau_vv;
 else
     p=size(data_fmri,2);
     q=size(data_snp,2);
@@ -13,13 +11,9 @@ else
     % bound can be 2
     lambda_u_seq=0.00:0.002:0.005;%0.050:0.002:0.060;%0.1:0.02:0.15;%0.003:0.01:0.003;%0.2:0.01:0.4;
     lambda_v_seq=1.5:0.05:1.7;%0.8:0.05:1.5;%0.2:0.02:0.4;%0.00:0.001:0.09;%0.2:0.01:0.5;%0.05:0.002:0.09;
-    tau_u_seq=0.2:0.01:0.6;
-    tau_v_seq=0.2:0.01:0.6;
     % num of paras to be tuned
     num_lambdas_u=length(lambda_u_seq);
     num_lambdas_v=length(lambda_v_seq);
-    num_taus_u=length(tau_u_seq);
-    num_taus_v=length(tau_v_seq);
 
     % tunning on grid matrix
     grid_mat=zeros(num_lambdas_u,num_lambdas_v);
@@ -54,8 +48,6 @@ else
                                 [U,V]=scca(K,U_init,V_init,lambda_u,lambda_v);
                             elseif strcmpi(alg, 'scca_lasso')
                                 [ U,V ] = scca_lasso( Cxy,invCxx05_diag,invCyy05,U_init,V_init,lambda_u,lambda_v );
-                            elseif strcmpi(alg, 'group_scca_lasso')
-                                [U, V] = group_scca_lasso(Cxy, invCxx05_diag, invCyy05,U_init, V_init, lambda_u, lambda_v, tau_u, tau_v);
                             end
                             if norm(U)==0 || norm(V)==0, grid_mat(i,j)=NaN; flag_nan = 1;continue; end
                             if strcmpi(alg, 'scca')
@@ -82,8 +74,6 @@ else
         [best_i,best_j] = find(abs(grid_mat)==min_pval,1);
         best_lambda_u=lambda_u_seq(best_i);
         best_lambda_v=lambda_v_seq(best_j);
-        best_tau_u=0;
-        best_tau_v=0;
         fprintf('best lambda_u=%f, best lambda_v=%f, min pval=%f\n',best_lambda_u,best_lambda_v,min_pval);
     elseif strcmpi(tuning_params, 'perm')
         iters=10; % number of iters   
@@ -136,12 +126,8 @@ else
         for i =1:num_lambdas_u
             flag_nan = 0;
             for j=1:num_lambdas_v
-                %for r=1:num_taus_u
-                %for s=1:num_taus_v
                 lambda_u = lambda_u_seq(i);	% sparseness parameter for X
                 lambda_v = lambda_v_seq(j);	% sparseness parameter for Y
-                %tau_u = tau_u_seq(r);
-                %tau_v = tau_v_seq(s);
                 if flag_nan == 0
                     U_init=K*(ones(q,1)/q);
                     U_init = U_init /norm(U_init);
@@ -152,8 +138,6 @@ else
                         [U,V]=scca(K,U_init,V_init,lambda_u,lambda_v);
                     elseif strcmpi(alg, 'scca_lasso')
                         [ U,V ] = scca_lasso( Cxy,invCxx05_diag,invCyy05,U_init,V_init,lambda_u,lambda_v );
-                    elseif strcmpi(alg, 'group_scca_lasso')
-                        [U, V] = group_scca_lasso(Cxy, invCxx05_diag, invCyy05,U_init, V_init, lambda_u, lambda_v, tau_u, tau_v);
                     end
                     if norm(U)==0 || norm(V)==0, grid_mat(i,j)=NaN; flag_nan = 1;continue; end
                     if strcmpi(alg, 'scca')
@@ -174,8 +158,6 @@ else
         [best_i,best_j] = find(abs(grid_mat)==min_pval,1);
         best_lambda_u=lambda_u_seq(best_i);
         best_lambda_v=lambda_v_seq(best_j);
-        best_tau_u=0;
-        best_tau_v=0;
         fprintf('best lambda_u=%f, best lambda_v=%f, min pval=%f\n',best_lambda_u,best_lambda_v,min_pval);
     elseif strcmpi(tuning_params,'num_non_zeros')
         for i =1:num_lambdas_u

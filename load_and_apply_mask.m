@@ -1,4 +1,4 @@
-function [data_fmri, ROI, AAL_ROI_VI] = load_and_apply_mask(type_fmri, type_mask, type_summary, data_fmri)
+function [data_fmri, ROI, AAL_ROI_VI] = load_and_apply_mask(type_fmri, type_mask, data_fmri)
 if strcmpi(type_fmri,'nback') || strcmpi(type_fmri,'mtl')
     ROI_file='raal_MNI_V4.img';
 elseif strcmpi(type_fmri,'flanker')
@@ -92,39 +92,11 @@ fprintf('There are %d ROIs in total\n',nROIs);
 
 % apply mask
 data_ROI=zeros(size(data_fmri,1),nROIs);
-if strcmpi(type_summary,'avg')
-    for i=1:nROIs
-        region_i=(ROI==i);
-        region_i=region_i(:)';
-        for j=1:size(data_fmri,1)
-            data_ROI(j,i)=mean(data_fmri(j,region_i));
-        end
-    end
-    % for group scca
-    if strcmpi(type_mask, 'ROIs_cerebrum_grey')
-        voxel_membership=zeros(nROIs,1);
-        for i=1:90
-            pos_in_vec=ROI(ROI_orig==i);
-            voxel_membership(pos_in_vec)=i;
-        end
-        assert(sum(voxel_membership==0)==0,'every element should belong to a group.');
-        ROICount=zeros(90,1);
-        for i=1:90
-            ROICount(i) = sum(voxel_membership==i);
-        end
-        save('/home/yiming.wang/fmri_snp/voxel_membership.mat', 'voxel_membership');
-        save('/home/yiming.wang/fmri_snp/voxel_group_count.mat', 'ROICount');
-    end
-elseif strcmpi(type_summary,'eig')
-    % test the pca variances for each region, and use the 1st PC as the summary of the region
-    s_sum=[];
-    for i=1:nROIs
-        region_i=(ROI==i);
-        region_i=region_i(:)';
-        fmri_within_region_i=data_fmri(:,region_i);
-        [~,score,~,~,explained,~]=pca(fmri_within_region_i,'NumComponents',10);
-        data_ROI(:,i)=score(:,1);
-        s_sum=[s_sum explained(1:10)];
+for i=1:nROIs
+    region_i=(ROI==i);
+    region_i=region_i(:)';
+    for j=1:size(data_fmri,1)
+        data_ROI(j,i)=mean(data_fmri(j,region_i));
     end
 end
 data_fmri=data_ROI; 
